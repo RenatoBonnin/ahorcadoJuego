@@ -2,7 +2,7 @@ import random, json, os
 
 #JSON CON LAS PALABRAS QUE SE USAN EN EL JUEGO
 
-ruta = "grupos.json"
+ruta = "ahorcadito.json"
 
 def ejecutarArchivo():
     if not os.path.exists(ruta):
@@ -39,22 +39,34 @@ def juego(listaPalabras):
 	contErrores = 7
 	palabra = asignarPalabraRandom(listaPalabras)
 	palabraAdiv = asignarPalabraAdiv(palabra)
-	
+	letrasUsadas = []
+
 	while not vic and contErrores > 0:
 		
 		mostrarCiclo(palabraAdiv, contErrores)
-	
+
+		letrasUsadas.sort()
+
+		listarLetrasUsadas(letrasUsadas)
+
 		letraAdiv = input("INGRESE UNA LETRA: ").upper()
 		
-		palabraAdiv = list(palabraAdiv)
-		
-		error = letraALetra(palabra, palabraAdiv, letraAdiv)
-		
-		contErrores = siErrores(error, contErrores)
+		if letraAdiv not in letrasUsadas:
 			
-		palabraAdiv = listaToString(palabraAdiv)	
-	
-		vic = verificarEstado(palabra, palabraAdiv, contErrores)
+			letrasUsadas.append(letraAdiv)
+
+			palabraAdiv = list(palabraAdiv)
+			
+			error = letraALetra(palabra, palabraAdiv, letraAdiv)
+			
+			contErrores = siErrores(error, contErrores)
+				
+			palabraAdiv = listaToString(palabraAdiv)	
+		
+			vic = verificarEstado(palabra, palabraAdiv, contErrores)
+		
+		else: 
+			print("LETRA YA USADA")
 
 #FUNCIONES USADAS DENTRO DEL BUCLE PRINCIPAL
 
@@ -67,6 +79,9 @@ def mostrarErrores(contErrores):
 def mostrarCiclo(palabraAdiv, contErrores):
 	mostrarPalabraAdiv(palabraAdiv)
 	mostrarErrores(contErrores)
+
+def listarLetrasUsadas(letrasUsadas):
+	print(*letrasUsadas)
 
 def letraALetra(palabra, palabraAdiv, letraAdiv):
 	error = True
