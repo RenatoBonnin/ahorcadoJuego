@@ -1,15 +1,19 @@
-class Temperatura:
-    def __init__(self, temp):
-        self._celcius = temp
+from kivy.uix.button import Button
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
 
-    def leerCelcius(self):
-        return self._celcius
+class boton(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.contador = 0
+        self.text = (f"CONTADOR: {self.contador}")
 
-    def leerFahrenheit(self):
-        return self._celcius * 9/5 + 32
+    def on_press(self):
+        self.contador += 1
+        self.text = (f"CONTADOR: {self.contador}")
 
-t1 = Temperatura(38)
-t2 = Temperatura(24)
-
-print(t1.leerCelcius(), t1.leerFahrenheit())
-print(t2.leerCelcius(), t2.leerFahrenheit())
+class MiApp(App):
+    def build(self):
+        return boton()
+    
+MiApp().run()
