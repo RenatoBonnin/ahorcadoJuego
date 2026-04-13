@@ -1,47 +1,72 @@
 from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.boxlayout import BoxLayout
-from kivy.properties import StringProperty, NumericProperty
 
-class boton(Button):
-    def __init__(self, nro, **kwargs):
+
+# -------- Pantalla 1 (Menú) --------
+class MenuScreen(Screen):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.text = f"BOTON :{nro}"
-        self.background_color = (1, 0, 0, 1)
-        self.background_normal = ""
-        self.estado = False
 
-    def on_press(self):
-        if self.estado:
-            self.estado = False
-            self.background_color = (1, 0, 0, 1)
-            self.bt1.disabled = False
-            self.bt2.disabled = False
-        else:
-            self.estado = True
-            self.background_color = (0, 0.5, 0, 1)
-            self.bt1.disabled = True
-            self.bt2.disabled = True
+        layout = BoxLayout()
 
+        titulo = Label(text="MENÚ")
+
+        btn_ir = Button(text="Ir al contador")
+        btn_ir.bind(on_press=self.ir_contador)
+
+        layout.add_widget(titulo)
+        layout.add_widget(btn_ir)
+
+        self.add_widget(layout)
+
+    def ir_contador(self, instance):
+        self.manager.current = "contador"
+
+
+# -------- Pantalla 2 (Contador) --------
+class ContadorScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.contador = 0
+
+        layout = BoxLayout(orientation='vertical')
+
+        self.label = Label(text=str(self.contador), font_size=40)
+
+        btn_sumar = Button(text="+1")
+        btn_sumar.bind(on_press=self.sumar)
+
+        btn_volver = Button(text="Volver al menú")
+        btn_volver.bind(on_press=self.volver_menu)
+
+        layout.add_widget(self.label)
+        layout.add_widget(btn_sumar)
+        layout.add_widget(btn_volver)
+
+        self.add_widget(layout)
+
+    def sumar(self, instance):
+        self.contador += 1
+        self.label.text = str(self.contador)
+
+    def volver_menu(self, instance):
+        self.manager.current = "menu"
+
+
+# -------- App principal --------
 class MiApp(App):
     def build(self):
-       
-        lay = BoxLayout()
+        sm = ScreenManager()
 
-        bt1 = boton(1)
-        bt2 = boton(2)
-        bt3 = boton(3)
+        sm.add_widget(MenuScreen(name="menu"))
+        sm.add_widget(ContadorScreen(name="contador"))
 
-        bt1.bt1, bt1.bt2 = bt2, bt3
-        bt2.bt1, bt2.bt2 = bt1, bt3
-        bt3.bt1, bt3.bt2 = bt1, bt2
+        return sm
 
-        lay.add_widget(bt1)
-        lay.add_widget(bt2)
-        lay.add_widget(bt3)
 
-        return lay
-
-a = MiApp()
-a.run()
+if __name__ == "__main__":
+    MiApp().run()
