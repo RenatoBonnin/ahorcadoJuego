@@ -3,66 +3,86 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
+from kivy.properties import NumericProperty
 
-class SInput(Screen):
+class Mas1Screen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
-
-        layout = BoxLayout(orientation = "vertical")
-
-        titulo = Label(text = "SCREEN INPUT")
-
-        btnirAB = Button(text = "IR A SCREEN B")
-        btnirAB.bind(on_press = self.irAB)
-
-        self.input = TextInput(hint_text = "INPUT ACA")
-
-        layout.add_widget(titulo)
-        layout.add_widget(self.input)
-        layout.add_widget(btnirAB)
-
-        self.add_widget(layout)
-
-    def irAB(self, instance):
-        self.manager.current = "SShow"
         
-class SShow(Screen):
+        layout = BoxLayout(orientation = "vertical")
+        
+        self.contador = Contador()
+
+        botonMas1 = Button(text = "+1")
+        botonMas1.bind(on_press = self.sumar1)
+
+        botonIr = Button(text = "IR")
+        botonIr.bind(on_press = self.ir)
+
+        layout.add_widget(botonMas1)
+        layout.add_widget(self.contador)
+        layout.add_widget(botonIr)
+
+        self.add_widget(layout)
+
+    def sumar1(self, instance):
+        app = App.get_running_app()
+        app.contador.cont += 1
+        self.contador.text = str(app.contador.text)
+
+    def ir(self, instance):
+        self.manager.current = "Restar"
+        
+
+class Menos1Screen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
         layout = BoxLayout(orientation = "vertical")
 
-        titulo = Label(text = "SCREEN SHOW", color = (0, 1, 0, 1))
+        self.contador = Contador()
 
-        btnirBA = Button(text = "IR A SCREEN A")
-        btnirBA.bind(on_press = self.irBA)
+        botonMenos1 = Button(text = "-1")
+        botonMenos1.bind(on_press = self.restar1)
+        
+        botonIr = Button(text = "IR")
+        botonIr.bind(on_press = self.ir)
 
-        self.label = Label(text = "")
-
-        btnShow = Button(text = "MOSTRAR")
-        btnShow.bind(on_press = self.mostrar)
-
-        layout.add_widget(titulo)
-        layout.add_widget(self.label)
-        layout.add_widget(btnShow)
-        layout.add_widget(btnirBA)
+        layout.add_widget(botonMenos1)
+        layout.add_widget(self.contador)
+        layout.add_widget(botonIr)
 
         self.add_widget(layout)
 
-    def irBA(self, instance):
-        self.manager.current = "SInput"
+    def restar1(self, instance):
+        app = App.get_running_app()
+        app.contador.cont -= 1
+        self.contador.text = str(app.contador.text)
 
-    def mostrar(self, instance):    
-        self.label.text = self.manager.get_screen("SInput").input.text
+    def ir(self, instance):
+        self.manager.current = "Sumar"
+
+class Contador(Label):
+    cont = NumericProperty(0)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.text = str(self.cont)
+
+    def on_cont(self, instance, value):
+        self.text = str(value)
 
 class MiApp(App):
+
+    contador = Contador()
+
     def build(self):
+
         sm = ScreenManager()
 
-        sm.add_widget(SInput(name = "SInput"))
-        sm.add_widget(SShow(name = "SShow"))
+        sm.add_widget(Mas1Screen(name = "Sumar"))
+        sm.add_widget(Menos1Screen(name = "Restar"))
 
         return sm
-    
+
 MiApp().run()
