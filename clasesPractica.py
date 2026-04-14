@@ -3,70 +3,66 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 
+class SInput(Screen):
+    def __init__(self, **kw):
+        super().__init__(**kw)
 
-# -------- Pantalla 1 (Menú) --------
-class MenuScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        layout = BoxLayout(orientation = "vertical")
 
-        layout = BoxLayout()
+        titulo = Label(text = "SCREEN INPUT")
 
-        titulo = Label(text="MENÚ")
+        btnirAB = Button(text = "IR A SCREEN B")
+        btnirAB.bind(on_press = self.irAB)
 
-        btn_ir = Button(text="Ir al contador")
-        btn_ir.bind(on_press=self.ir_contador)
+        self.input = TextInput(hint_text = "INPUT ACA")
 
         layout.add_widget(titulo)
-        layout.add_widget(btn_ir)
+        layout.add_widget(self.input)
+        layout.add_widget(btnirAB)
 
         self.add_widget(layout)
 
-    def ir_contador(self, instance):
-        self.manager.current = "contador"
+    def irAB(self, instance):
+        self.manager.current = "SShow"
+        
+class SShow(Screen):
+    def __init__(self, **kw):
+        super().__init__(**kw)
 
+        layout = BoxLayout(orientation = "vertical")
 
-# -------- Pantalla 2 (Contador) --------
-class ContadorScreen(Screen):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+        titulo = Label(text = "SCREEN SHOW", color = (0, 1, 0, 1))
 
-        self.contador = 0
+        btnirBA = Button(text = "IR A SCREEN A")
+        btnirBA.bind(on_press = self.irBA)
 
-        layout = BoxLayout(orientation='vertical')
+        self.label = Label(text = "")
 
-        self.label = Label(text=str(self.contador), font_size=40)
+        btnShow = Button(text = "MOSTRAR")
+        btnShow.bind(on_press = self.mostrar)
 
-        btn_sumar = Button(text="+1")
-        btn_sumar.bind(on_press=self.sumar)
-
-        btn_volver = Button(text="Volver al menú")
-        btn_volver.bind(on_press=self.volver_menu)
-
+        layout.add_widget(titulo)
         layout.add_widget(self.label)
-        layout.add_widget(btn_sumar)
-        layout.add_widget(btn_volver)
+        layout.add_widget(btnShow)
+        layout.add_widget(btnirBA)
 
         self.add_widget(layout)
 
-    def sumar(self, instance):
-        self.contador += 1
-        self.label.text = str(self.contador)
+    def irBA(self, instance):
+        self.manager.current = "SInput"
 
-    def volver_menu(self, instance):
-        self.manager.current = "menu"
+    def mostrar(self, instance):    
+        self.label.text = self.manager.get_screen("SInput").input.text
 
-
-# -------- App principal --------
 class MiApp(App):
     def build(self):
         sm = ScreenManager()
 
-        sm.add_widget(MenuScreen(name="menu"))
-        sm.add_widget(ContadorScreen(name="contador"))
+        sm.add_widget(SInput(name = "SInput"))
+        sm.add_widget(SShow(name = "SShow"))
 
         return sm
-
-
-if __name__ == "__main__":
-    MiApp().run()
+    
+MiApp().run()
