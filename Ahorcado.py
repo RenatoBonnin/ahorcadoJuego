@@ -152,8 +152,13 @@ def config(listaPalabras):
 #FUNCIONES PARA CONFIG	
 	
 def listarPalabras(listaPalabras):
+	print(*listaPalabras)
+
+def listarPalabrasUI(listaPalabras):
+	texto = ""
 	for palabra in listaPalabras:
-		print(palabra)
+		texto += f"{palabra} "
+	return texto
 
 def agregarPalabra(listaPalabras):
 	nuevaPalabra = input("NUEVA PALABRA: ").upper()
@@ -167,7 +172,7 @@ def eliminarPalabra(listaPalabras):
 		input("PALABRA NO ENCONTRADA")
 		
 #CUERPO PRINCIPAL
-
+"""
 ejecutarArchivo()
 
 listaPalabras = leerArchivo()
@@ -189,5 +194,4 @@ while op != "0":
 		case _:
 			if op != "0":
 				print("OPCION INVALIDA")
-	
-	
+"""
