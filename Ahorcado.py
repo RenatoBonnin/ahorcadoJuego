@@ -156,21 +156,60 @@ def listarPalabras(listaPalabras):
 
 def listarPalabrasUI(listaPalabras):
 	texto = ""
+	i = 1
 	for palabra in listaPalabras:
-		texto += f"{palabra} "
+		
+		if len(listaPalabras) == i:
+			texto += f"{palabra}"
+		else:
+			texto += f"{palabra}, "
+		i += 1
 	return texto
 
 def agregarPalabra(listaPalabras):
 	nuevaPalabra = input("NUEVA PALABRA: ").upper()
 	listaPalabras.append(nuevaPalabra)
 
+def limpiar_espacios(texto):
+    # strip() elimina espacios al inicio y final de la cadena
+    # split() separa por cualquier cantidad de espacios
+    # join() une las palabras con un solo espacio
+    return " ".join(texto.strip().split())
+
+def esPalabraValida(palabra):
+	for letra in palabra:
+		if not (letra.isalpha() or letra.isspace()):
+			return False
+	return True
+		
+def agregarPalabraUI(listaPalabras, palabraNueva):
+	limpiar_espacios(palabraNueva)
+	if len(palabraNueva) != 1 and esPalabraValida(palabraNueva):
+		palabraNueva = palabraNueva.upper()
+		listaPalabras.append(palabraNueva)
+		return (True, False)
+	else: 
+		if not esPalabraValida(palabraNueva):
+			return (False, True)
+		else:	
+			return (False, False)
+
 def eliminarPalabra(listaPalabras):
-	palabra = input("INGRESE PALABRA A ELIMINAR: ").upper()
+	palabra = input("INGRESE PALABRA A ELIMINAR: ")
 	if palabra in listaPalabras:
 		listaPalabras.remove(palabra)
 	else:
 		input("PALABRA NO ENCONTRADA")
-		
+
+def eliminarPalabraUI(listaPalabras, palabraEliminar):
+	limpiar_espacios(palabraEliminar)
+	palabraEliminar = palabraEliminar.upper()
+	if palabraEliminar in listaPalabras:
+		listaPalabras.remove(palabraEliminar)
+		return True
+	else:
+		return False
+
 #CUERPO PRINCIPAL
 """
 ejecutarArchivo()
