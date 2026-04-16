@@ -68,6 +68,9 @@ def juego(listaPalabras):
 		else: 
 			print("LETRA YA USADA")
 
+def juegoUI(listaPalabras):
+	pass
+
 #FUNCIONES USADAS DENTRO DEL BUCLE PRINCIPAL
 
 def mostrarPalabraAdiv(palabraAdiv):
@@ -194,8 +197,6 @@ def agregarPalabraUI(listaPalabras, palabraNueva):
 	palabraNueva = palabraNueva.upper()
 
 	repetida = esPalabraRepetida(listaPalabras, palabraNueva); valida = esPalabraValida(palabraNueva)
-
-	print(valida)
 
 	if len(palabraNueva) > 1 and valida and not repetida:
 		

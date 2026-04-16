@@ -7,9 +7,11 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
+from kivy.properties import NumericProperty
 
 Ah.ejecutarArchivo()
-listaPalabras = Ah.leerArchivo()    
+listaPalabras = Ah.leerArchivo()   
+vidasMax = 7 
 
 class botonSalirConfigMenu(Button):
     def __init__(self, input = Label(), **kwargs):
@@ -41,14 +43,70 @@ class MenuScreen(Screen):
         self.add_widget(lay)
     
     def irAJugar(self, instance):
-        self.manager.current = "Juego"
+        if listaPalabras:
+            self.manager.current = "Juego"
+        else:
+            error(self, "Agrega palabras a la lista para poder jugar")
+    
     def irAConfig(self, instance):
         self.manager.current = "Configuracion"
+    
     def salir(self, instance):
         App.get_running_app().stop()
 
+class LabelDeErrores(Label):
+    
+    errores = NumericProperty(0)
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.errores = vidasMax
+
+    def on_errores(self, instance, value):
+        self.text = f"VIDAS RESTANTES: {value}"
+
 class JuegoScreen(Screen):
-    pass
+    def __init__(self, **kw):
+        super().__init__(**kw)
+
+        self.lay = BoxLayout(orientation = "vertical")
+        
+        self.palabraAdivinada = Label(text = "")
+        
+        self.errores = LabelDeErrores()
+
+        self.letrasUsadas = Label(text = "")
+
+        self.input = TextInput(hint_text = "Adivina una letra", multiline = False)
+
+        botonSalir = Button(text = "SALIR")
+        botonSalir.bind(on_press = self.salir)
+
+        self.lay.add_widget(self.palabraAdivinada)
+        self.lay.add_widget(self.errores)
+        self.lay.add_widget(self.letrasUsadas)
+        self.lay.add_widget(self.input)
+        self.lay.add_widget(botonSalir)
+
+        self.add_widget(self.lay)
+
+    def on_pre_enter(self, *args):
+        self.errores.errores = vidasMax
+        self.palabraRespuesta = Ah.asignarPalabraRandom(listaPalabras)
+        self.palabraAdivinada.text = Ah.asignarPalabraAdiv(self.palabraRespuesta)
+        palabraLista = list(self.palabraAdivinada.text)
+        errorBool = Ah.letraALetra(self.palabraRespuesta, palabraLista, self.input)
+        self.errores.errores = Ah.siErrores(errorBool, self.errores.errores)
+
+
+    def on_press(self, instance, value):
+        self.letraAdivinada = self.input.text
+        self.input.text = ""
+
+
+
+    def salir(self, instance):
+        self.manager.current = "Menu"
 
 class ConfigScreen(Screen):
     def __init__(self, **kw):
@@ -143,7 +201,7 @@ class AgregarScreen(Screen):
 
         self.palabraNueva = TextInput(hint_text = "INGRESE UNA NUEVA PALABRA", multiline = False)
 
-        self.palabraNueva.bind(on_text_validate = self.on_enterApretado)
+        self.palabraNueva.bind(on_text_validate = self.on_press)
 
         self.palabras = Label(text = "")
 
@@ -153,7 +211,7 @@ class AgregarScreen(Screen):
 
         self.add_widget(lay)
 
-    def on_enterApretado(self, *args):
+    def on_press(self, *args):
         (resultado, alfa, repe) = Ah.agregarPalabraUI(listaPalabras, self.palabraNueva.text)
         if resultado:
             self.actualizarLista()
@@ -181,7 +239,7 @@ class EliminarScreen(Screen):
 
         self.palabraEliminar = TextInput(hint_text = "INGRESE UNA PALABRA A ELIMINAR", multiline = False)
 
-        self.palabraEliminar.bind(on_text_validate = self.on_enterApretado)
+        self.palabraEliminar.bind(on_text_validate = self.on_press)
 
         self.palabras = Label(text = "")
 
@@ -191,7 +249,7 @@ class EliminarScreen(Screen):
 
         self.add_widget(lay)
 
-    def on_enterApretado(self, *args):
+    def on_press(self, *args):
         resultado = Ah.eliminarPalabraUI(listaPalabras, self.palabraEliminar.text)
         if resultado:
             self.actualizarLista()
