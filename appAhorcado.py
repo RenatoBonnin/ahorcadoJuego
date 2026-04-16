@@ -196,7 +196,7 @@ class EliminarScreen(Screen):
         if resultado:
             self.actualizarLista()
             self.palabraEliminar.text = ""
-            if self.palabras.text == "":
+            if not listaPalabras:
                 self.manager.current = "ConfigMenu"
         elif len(self.palabraEliminar.text) > 1:
             error(self, "No se pudo eliminar la palabra ya que\nno se encontro en la lista.", self.palabraEliminar)

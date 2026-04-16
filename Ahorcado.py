@@ -195,7 +195,7 @@ def agregarPalabraUI(listaPalabras, palabraNueva):
 
 	repetida = esPalabraRepetida(listaPalabras, palabraNueva); valida = esPalabraValida(palabraNueva)
 
-	if len(palabraNueva) != 1 and valida and not repetida:
+	if len(palabraNueva) > 1 and valida and not repetida:
 		
 		listaPalabras.append(palabraNueva)
 		return (True,not valida, repetida)
