@@ -189,11 +189,13 @@ def esPalabraRepetida(listaPalabras, palabraBuscada):
 	return False
 
 def agregarPalabraUI(listaPalabras, palabraNueva):
-	limpiar_espacios(palabraNueva)
+	palabraNueva = limpiar_espacios(palabraNueva)
 
 	palabraNueva = palabraNueva.upper()
 
 	repetida = esPalabraRepetida(listaPalabras, palabraNueva); valida = esPalabraValida(palabraNueva)
+
+	print(valida)
 
 	if len(palabraNueva) > 1 and valida and not repetida:
 		
