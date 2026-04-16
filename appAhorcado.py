@@ -6,16 +6,19 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
+from kivy.clock import Clock
 
 Ah.ejecutarArchivo()
 listaPalabras = Ah.leerArchivo()    
 
 class botonSalirConfigMenu(Button):
-    def __init__(self, **kwargs):
+    def __init__(self, input = Label(), **kwargs):
         super().__init__(**kwargs)
+        self.input = input
         self.text = "VOLVER"
 
     def on_press(self):
+        self.input.text = ""
         self.parent.parent.manager.current = "ConfigMenu"
 
 class MenuScreen(Screen):
@@ -85,7 +88,10 @@ class ConfigMenuScreen(Screen):
         self.add_widget(self.lay)
     
     def irAListar(self, instance):
-        self.manager.current = "Listar"
+        if listaPalabras:
+            self.manager.current = "Listar"
+        else:
+            error(self, "No hay palabras para listar")
 
     def irAAgregar(self, instance):
         self.manager.current = "Agregar"
@@ -109,9 +115,10 @@ class ListarScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
 
+        #Poner popup para cuando no hay palabras en la lista
+
         lay = BoxLayout(orientation = "vertical")
         
-        # NO ES DINAMICO, SE EJECUTA CON LA APP Y NO CAMBIA
         self.palabras = Label(text = "")
 
         lay.add_widget(self.palabras)
@@ -142,23 +149,29 @@ class AgregarScreen(Screen):
 
         lay.add_widget(self.palabras)
         lay.add_widget(self.palabraNueva)
-        lay.add_widget(botonSalirConfigMenu())
+        lay.add_widget(botonSalirConfigMenu(self.palabraNueva))
 
         self.add_widget(lay)
 
     def on_enterApretado(self, *args):
-        (resultado, alfa) = Ah.agregarPalabraUI(listaPalabras, self.palabraNueva.text)
+        (resultado, alfa, repe) = Ah.agregarPalabraUI(listaPalabras, self.palabraNueva.text)
         if resultado:
             self.actualizarLista()
             self.palabraNueva.text = ""
         elif alfa:
-            error(self, "Solo se pueden agregar palabras con letras.")
+            error(self, "Solo se pueden agregar palabras con letras.", self.palabraNueva)
+        elif repe:
+            error(self, "Esta palabra ya está agregada. No se pueden agregar palabras repetidas", self.palabraNueva)
+        Clock.schedule_once(self.refocus, 0)
 
     def actualizarLista(self):
         self.palabras.text = Ah.listarPalabrasUI(listaPalabras)
 
     def on_pre_enter(self, *args):
         self.actualizarLista()
+
+    def refocus(self, dt):
+        self.palabraNueva.focus = True
 
 class EliminarScreen(Screen):
     def __init__(self, **kw):
@@ -174,7 +187,7 @@ class EliminarScreen(Screen):
 
         lay.add_widget(self.palabras)
         lay.add_widget(self.palabraEliminar)
-        lay.add_widget(botonSalirConfigMenu())
+        lay.add_widget(botonSalirConfigMenu(self.palabraEliminar))
 
         self.add_widget(lay)
 
@@ -185,9 +198,9 @@ class EliminarScreen(Screen):
             self.palabraEliminar.text = ""
             if self.palabras.text == "":
                 self.manager.current = "ConfigMenu"
-        else:
-            error(self, "No se pudo eliminar la palabra ya que\nno se encontro en la lista.")
-
+        elif len(self.palabraEliminar.text) > 1:
+            error(self, "No se pudo eliminar la palabra ya que\nno se encontro en la lista.", self.palabraEliminar)
+        Clock.schedule_once(self.refocus, 0)
 
     def actualizarLista(self):
         self.palabras.text = Ah.listarPalabrasUI(listaPalabras)
@@ -195,6 +208,8 @@ class EliminarScreen(Screen):
     def on_pre_enter(self, *args):
         self.actualizarLista()
 
+    def refocus(self, dt):
+        self.palabraEliminar.focus = True
 
 class AhorcadoApp(App):
     def build(self):
@@ -206,11 +221,21 @@ class AhorcadoApp(App):
 
         return sm
 
-def error(self, mensaje):
+def error(self, mensaje, input = Label()):
+
     popup = Popup(title="Error",
                   content=Label(text=mensaje),
                   size_hint=(0.6, 0.4))
+    popup.input = input
+
+    popup.input.disabled = True
+
+    popup.bind(on_dismiss=reactivar_input)
     popup.open()
+
+def reactivar_input(self):
+    self.input.disabled = False
+    self.input.focus = True
 
 app = AhorcadoApp()
 app.run()

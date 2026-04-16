@@ -182,17 +182,28 @@ def esPalabraValida(palabra):
 			return False
 	return True
 		
+def esPalabraRepetida(listaPalabras, palabraBuscada):
+	for palabra in listaPalabras:
+		if palabra == palabraBuscada:
+			return True
+	return False
+
 def agregarPalabraUI(listaPalabras, palabraNueva):
 	limpiar_espacios(palabraNueva)
-	if len(palabraNueva) != 1 and esPalabraValida(palabraNueva):
-		palabraNueva = palabraNueva.upper()
+
+	palabraNueva = palabraNueva.upper()
+
+	repetida = esPalabraRepetida(listaPalabras, palabraNueva); valida = esPalabraValida(palabraNueva)
+
+	if len(palabraNueva) != 1 and valida and not repetida:
+		
 		listaPalabras.append(palabraNueva)
-		return (True, False)
-	else: 
-		if not esPalabraValida(palabraNueva):
-			return (False, True)
-		else:	
-			return (False, False)
+		return (True,not valida, repetida)
+	elif not esPalabraValida(palabraNueva):
+		return (False, not valida, repetida)
+	elif esPalabraRepetida(listaPalabras, palabraNueva):	
+		return (False, not valida, repetida)
+	else: return(False, False, False)
 
 def eliminarPalabra(listaPalabras):
 	palabra = input("INGRESE PALABRA A ELIMINAR: ")
