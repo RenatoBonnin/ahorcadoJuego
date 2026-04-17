@@ -73,6 +73,8 @@ class JuegoScreen(Screen):
 
         self.palabraAdivinada = Label(text = "")
 
+        self.popupV = PopupConfirmar(on_result = self.confirmacion)
+
         self.errores = LabelDeErrores()
 
         self.letrasUsadas = Label(text = "")
@@ -81,7 +83,7 @@ class JuegoScreen(Screen):
         self.input.bind(on_text_validate = self.on_press)
 
         botonSalir = Button(text = "SALIR")
-        botonSalir.bind(on_press = self.salir)
+        botonSalir.bind(on_press = self.popup)
 
         self.lay.add_widget(self.palabraAdivinada)
         self.lay.add_widget(self.errores)
@@ -105,17 +107,57 @@ class JuegoScreen(Screen):
         self.palabraAdivinada.text = Ah.listaToString(palabraLista)
         
         estado = Ah.verificarEstado(self.palabraRespuesta, self.palabraAdivinada.text, self.errores.errores)
-        
+
         if estado:
-        	error(self, "GANASTE :)", self.input)
-        
+            error(self, "GANASTE!!! :)", self.input)
+
         Clock.schedule_once(self.refocus, 0)
         
     def refocus(self, dt):
         self.input.focus = True
         
-    def salir(self, instance):
-        self.manager.current = "Menu"
+    def popup(self, instance):
+        self.popupV.open()
+
+    def confirmacion(self, resultado):
+        if resultado:
+            self.manager.current = "Menu"
+
+class PopupConfirmar(Popup):
+    def __init__(self, on_result = None, **kwargs):
+        super().__init__(**kwargs)
+
+        laylabel = BoxLayout(orientation = "vertical")
+
+        botoneslay = BoxLayout(orientation = "horizontal")
+
+        self.title = "Desea salir?"
+
+        self.on_result = on_result
+
+        botonSi = Button(text = "SI")
+        botonNo = Button(text = "NO")
+
+        botonSi.bind(on_press = self.devolverSi)
+        botonNo.bind(on_press = self.devolverNo)
+
+        laylabel.add_widget(Label(text = "¿ESTÁS SEGURO QUE DESEAS SALIR? EL PROGRESO NO SE GUARDARÁ"))
+        
+        botoneslay.add_widget(botonSi)
+        botoneslay.add_widget(botonNo)
+
+        laylabel.add_widget(botoneslay)
+
+        self.content = laylabel
+
+    def devolverSi(self, instance):
+        if self.on_result:
+            self.on_result(True)
+        self.dismiss()
+    def devolverNo(self, instance):
+        if self.on_result:
+            self.on_result(False)
+        self.dismiss()
 
 class ConfigScreen(Screen):
     def __init__(self, **kw):
@@ -299,6 +341,16 @@ def error(self, mensaje, input = Label()):
 
     popup.bind(on_dismiss=reactivar_input)
     popup.open()
+
+class PopupError(Popup):
+    def __init__(self, mensaje, input, **kwargs):
+        super().__init__(**kwargs)
+
+        self.title = "Error"
+        self.content = Label(text = mensaje)
+        self.input = input
+        self.bind(on_dismiss = self.reactivar_input)
+        self.open()
 
 def reactivar_input(self):
     self.input.disabled = False
