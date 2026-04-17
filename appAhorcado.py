@@ -41,23 +41,23 @@ class MenuScreen(Screen):
         lay.add_widget(botonSalir)
 
         self.add_widget(lay)
-    
+
     def irAJugar(self, instance):
         if listaPalabras:
             self.manager.current = "Juego"
         else:
             error(self, "Agrega palabras a la lista para poder jugar")
-    
+
     def irAConfig(self, instance):
         self.manager.current = "Configuracion"
-    
+
     def salir(self, instance):
         App.get_running_app().stop()
 
 class LabelDeErrores(Label):
-    
+
     errores = NumericProperty(0)
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.errores = vidasMax
@@ -70,14 +70,15 @@ class JuegoScreen(Screen):
         super().__init__(**kw)
 
         self.lay = BoxLayout(orientation = "vertical")
-        
+
         self.palabraAdivinada = Label(text = "")
-        
+
         self.errores = LabelDeErrores()
 
         self.letrasUsadas = Label(text = "")
 
         self.input = TextInput(hint_text = "Adivina una letra", multiline = False)
+        self.input.bind(on_text_validate = self.on_press)
 
         botonSalir = Button(text = "SALIR")
         botonSalir.bind(on_press = self.salir)
@@ -94,17 +95,25 @@ class JuegoScreen(Screen):
         self.errores.errores = vidasMax
         self.palabraRespuesta = Ah.asignarPalabraRandom(listaPalabras)
         self.palabraAdivinada.text = Ah.asignarPalabraAdiv(self.palabraRespuesta)
-        palabraLista = list(self.palabraAdivinada.text)
-        errorBool = Ah.letraALetra(self.palabraRespuesta, palabraLista, self.input)
-        self.errores.errores = Ah.siErrores(errorBool, self.errores.errores)
 
-
-    def on_press(self, instance, value):
-        self.letraAdivinada = self.input.text
+    def on_press(self, *args):
+        self.letraAdivinada = self.input.text.upper()
         self.input.text = ""
-
-
-
+        palabraLista = list(self.palabraAdivinada.text)
+        errorBool = Ah.letraALetra(self.palabraRespuesta, palabraLista, self.letraAdivinada)
+        self.errores.errores = Ah.siErrores(errorBool, self.errores.errores)
+        self.palabraAdivinada.text = Ah.listaToString(palabraLista)
+        
+        estado = Ah.verificarEstado(self.palabraRespuesta, self.palabraAdivinada.text, self.errores.errores)
+        
+        if estado:
+        	error(self, "GANASTE :)", self.input)
+        
+        Clock.schedule_once(self.refocus, 0)
+        
+    def refocus(self, dt):
+        self.input.focus = True
+        
     def salir(self, instance):
         self.manager.current = "Menu"
 
@@ -144,7 +153,7 @@ class ConfigMenuScreen(Screen):
         self.lay.add_widget(botonSalir)
 
         self.add_widget(self.lay)
-    
+
     def irAListar(self, instance):
         if listaPalabras:
             self.manager.current = "Listar"
@@ -156,7 +165,7 @@ class ConfigMenuScreen(Screen):
 
     def irAEliminar(self, instance):
         self.manager.current = "Eliminar" 
-    
+
     def salir(self, instance):
         Ah.modificarArchivo(listaPalabras)
         self.manager.parent.manager.current = "Menu"
@@ -176,7 +185,7 @@ class ListarScreen(Screen):
         #Poner popup para cuando no hay palabras en la lista
 
         lay = BoxLayout(orientation = "vertical")
-        
+
         self.palabras = Label(text = "")
 
         lay.add_widget(self.palabras)
@@ -196,7 +205,7 @@ class ListarScreen(Screen):
 class AgregarScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
-        
+
         lay = BoxLayout(orientation = "vertical")
 
         self.palabraNueva = TextInput(hint_text = "INGRESE UNA NUEVA PALABRA", multiline = False)
@@ -234,7 +243,7 @@ class AgregarScreen(Screen):
 class EliminarScreen(Screen):
     def __init__(self, **kw):
         super().__init__(**kw)
-        
+
         lay = BoxLayout(orientation = "vertical")
 
         self.palabraEliminar = TextInput(hint_text = "INGRESE UNA PALABRA A ELIMINAR", multiline = False)
