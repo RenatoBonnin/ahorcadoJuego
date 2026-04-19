@@ -185,9 +185,8 @@ def esPalabraValida(palabra):
         return True
 
 def esPalabraRepetida(listaPalabras, palabraBuscada):
-        for palabra in listaPalabras:
-                if palabra == palabraBuscada:
-                        return True
+        if palabraBuscada in listaPalabras:
+               return True
         return False
 
 def agregarPalabraUI(listaPalabras, palabraNueva):
